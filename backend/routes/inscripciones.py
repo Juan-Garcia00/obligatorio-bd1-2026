@@ -3,34 +3,163 @@ from db import conectar
 
 inscripciones_bp = Blueprint('inscripciones', __name__)
 
-@inscripciones_bp.route('/inscribir', methods=['POST'])
-def inscribir():
-    data = request.json
-    id_estudiante = data['id_estudiante']
-    id_actividad = data['id_actividad']
-    
+@inscripciones_bp.route('/inscripciones', methods=['GET'])
+def listar_inscripciones():
     conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute(f"SELECT estado, cupo FROM actividad WHERE id = {id_actividad}")
-    actividad = cursor.fetchone()
-    
-    if not actividad or actividad[0] != 'abierta':
-        return jsonify({"error": "La actividad no esta abierta"}), 400
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT
+            i.*,
+            e.nombre AS estudiante_nombre,
+            e.apellido AS estudiante_apellido,
+            a.nombre AS actividad_nombre
+        FROM inscripcion i
+        JOIN estudiante e
+            ON e.id = i.estudiante_id
+        JOIN actividad a
+            ON a.id = i.actividad_id
+        ORDER BY i.fecha_inscripcion DESC
+    """)
 
-    cursor.execute(f"SELECT * FROM inscripcion WHERE id_estudiante = {id_estudiante} AND id_actividad = {id_actividad}")
-    if cursor.fetchone():
-        return jsonify({"error": "El estudiante ya esta inscripto"}), 400
-
-    cursor.execute(f"SELECT COUNT(*) FROM inscripcion WHERE id_actividad = {id_actividad} AND estado = 'confirmada'")
-    cant_inscriptos = cursor.fetchone()[0]
-
-    if cant_inscriptos < actividad[1]:
-        estado_final = 'confirmada'
-    else:
-        estado_final = 'lista_de_espera'
-    cursor.execute(f"INSERT INTO inscripcion (id_estudiante, id_actividad, fecha, estado) VALUES ({id_estudiante}, {id_actividad}, '2026-06-07', '{estado_final}')")
-    conn.commit()
-    
+    resultado = cursor.fetchall()
     cursor.close()
     conn.close()
-    return jsonify({"mensaje": f"Inscripcion registrada como {estado_final}"}), 200
+    return jsonify(resultado), 200
+
+@inscripciones_bp.route('/actividades/<int:actividad_id>/inscripciones', methods=['GET'])
+def listar_inscripciones_actividad(actividad_id):
+    conn = conectar()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT
+            i.*,
+            e.nombre AS estudiante_nombre,
+            e.apellido AS estudiante_apellido,
+            e.documento
+        FROM inscripcion i
+        JOIN estudiante e
+            ON e.id = i.estudiante_id
+        WHERE i.actividad_id = %s
+        ORDER BY i.fecha_inscripcion
+    """, (actividad_id,))
+
+    resultado = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(resultado), 200
+
+
+@inscripciones_bp.route('/inscripciones', methods=['POST'])
+def crear_inscripcion():
+    datos = request.get_json()
+    estudiante_id = datos.get('estudiante_id')
+    actividad_id = datos.get('actividad_id')
+
+    if not estudiante_id or not actividad_id:
+        return jsonify({
+            "error": "Debe enviar estudiante_id y actividad_id"
+        }), 400
+    conn = conectar()
+    cursor = conn.cursor(dictionary=True)
+
+    # Verificar estudiante
+    cursor.execute(
+        "SELECT id FROM estudiante WHERE id = %s",
+        (estudiante_id,)
+    )
+
+    if not cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return jsonify({
+            "error": "Estudiante no encontrado"
+        }), 404
+    # Verificar actividad
+    cursor.execute(
+        "SELECT * FROM actividad WHERE id = %s",
+        (actividad_id,)
+    )
+    actividad = cursor.fetchone()
+
+    if not actividad:
+        cursor.close()
+        conn.close()
+        return jsonify({
+            "error": "Actividad no encontrada"
+        }), 404
+    
+    # Verificar estado
+    if actividad['estado'] != 'ABIERTA':
+        cursor.close()
+        conn.close()
+        return jsonify({
+            "error": "La actividad no está abierta"
+        }), 400
+    
+    # Verificar inscripción duplicada
+    cursor.execute("""
+        SELECT id
+        FROM inscripcion
+        WHERE estudiante_id = %s
+        AND actividad_id = %s
+    """, (estudiante_id, actividad_id))
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return jsonify({
+            "error": "El estudiante ya está inscripto"
+        }), 400
+    
+    # Contar inscripciones confirmadas
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM inscripcion
+        WHERE actividad_id = %s
+        AND estado = 'CONFIRMADA'
+    """, (actividad_id,))
+    total = cursor.fetchone()['total']
+
+    # Definir estado
+    if total < actividad['cupo_maximo']:
+        estado = 'CONFIRMADA'
+    else:
+        estado = 'ESPERA'
+
+    # Insertar inscripción
+    cursor.execute("""
+        INSERT INTO inscripcion
+        (estudiante_id, actividad_id, estado)
+        VALUES (%s, %s, %s)
+    """, (estudiante_id, actividad_id, estado))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({
+        "mensaje": "Inscripción creada correctamente",
+        "estado": estado
+    }), 201
+
+@inscripciones_bp.route('/inscripciones/<int:id>', methods=['DELETE'])
+def eliminar_inscripcion(id):
+    conn = conectar()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        "SELECT id FROM inscripcion WHERE id = %s",
+        (id,)
+    )
+    if not cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return jsonify({
+            "error": "Inscripción no encontrada"
+        }), 404
+    cursor.execute(
+        "DELETE FROM inscripcion WHERE id = %s",
+        (id,)
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({
+        "mensaje": "Inscripción eliminada correctamente"
+    }), 200

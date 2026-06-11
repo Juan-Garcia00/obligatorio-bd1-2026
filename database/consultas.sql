@@ -64,9 +64,12 @@ WHERE i.estado = 'ESPERA';
 
 
 -- 9. Adicional 2: Espacios más utilizados (cantidad de actividades que se dan ahí)
-SELECT esp.nombre AS espacio, COUNT(a.id) AS cantidad_de_actividades
+SELECT
+    esp.nombre AS espacio,
+    COUNT(a.id) AS cantidad_de_actividades
 FROM espacio esp
-JOIN actividad a ON esp.id = a.space_id -- En tu esquema usaste espacio_id
+JOIN actividad a
+ON esp.id = a.espacio_id
 GROUP BY esp.id, esp.nombre
 ORDER BY cantidad_de_actividades DESC;
 

@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_cors import CORS  
+from flask_cors import CORS
 from routes.estudiantes import estudiantes_bp
 from routes.actividades import actividades_bp
 from routes.inscripciones import inscripciones_bp
