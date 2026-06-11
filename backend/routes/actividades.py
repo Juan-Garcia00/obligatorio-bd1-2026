@@ -3,25 +3,32 @@ from db import conectar
 
 actividades_bp = Blueprint('actividades', __name__)
 
+
 @actividades_bp.route('/actividades', methods=['GET'])
 def listar_actividades():
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
+
     cursor.execute("""
         SELECT
             a.*,
             d.nombre AS disciplina_nombre,
             e.nombre AS espacio_nombre
         FROM actividad a
-        JOIN disciplina d
-            ON d.id = a.disciplina_id
-        JOIN espacio e
-            ON e.id = a.espacio_id
+        JOIN disciplina d ON d.id = a.disciplina_id
+        JOIN espacio e ON e.id = a.espacio_id
         ORDER BY a.id
     """)
+
     resultado = cursor.fetchall()
+
+    for actividad in resultado:
+        actividad["hora_inicio"] = str(actividad["hora_inicio"])
+        actividad["hora_fin"] = str(actividad["hora_fin"])
+
     cursor.close()
     conn.close()
+
     return jsonify(resultado), 200
 
 
@@ -29,33 +36,41 @@ def listar_actividades():
 def obtener_actividad(id):
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
+
     cursor.execute("""
         SELECT
             a.*,
             d.nombre AS disciplina_nombre,
             e.nombre AS espacio_nombre
         FROM actividad a
-        JOIN disciplina d
-            ON d.id = a.disciplina_id
-        JOIN espacio e
-            ON e.id = a.espacio_id
+        JOIN disciplina d ON d.id = a.disciplina_id
+        JOIN espacio e ON e.id = a.espacio_id
         WHERE a.id = %s
     """, (id,))
+
     actividad = cursor.fetchone()
+
     cursor.close()
     conn.close()
+
     if not actividad:
         return jsonify({
             "error": "Actividad no encontrada"
         }), 404
+
+    actividad["hora_inicio"] = str(actividad["hora_inicio"])
+    actividad["hora_fin"] = str(actividad["hora_fin"])
+
     return jsonify(actividad), 200
 
 
 @actividades_bp.route('/actividades', methods=['POST'])
 def crear_actividad():
     datos = request.get_json()
+
     conn = conectar()
     cursor = conn.cursor()
+
     cursor.execute("""
         INSERT INTO actividad
         (
@@ -79,10 +94,14 @@ def crear_actividad():
         datos['hora_fin'],
         datos.get('estado', 'ABIERTA')
     ))
+
     conn.commit()
+
     nuevo_id = cursor.lastrowid
+
     cursor.close()
     conn.close()
+
     return jsonify({
         "id": nuevo_id,
         "mensaje": "Actividad creada correctamente"
@@ -92,18 +111,23 @@ def crear_actividad():
 @actividades_bp.route('/actividades/<int:id>', methods=['PUT'])
 def actualizar_actividad(id):
     datos = request.get_json()
+
     conn = conectar()
     cursor = conn.cursor()
+
     cursor.execute(
         "SELECT id FROM actividad WHERE id = %s",
         (id,)
     )
+
     if not cursor.fetchone():
         cursor.close()
         conn.close()
+
         return jsonify({
             "error": "Actividad no encontrada"
         }), 404
+
     cursor.execute("""
         UPDATE actividad
         SET
@@ -127,9 +151,12 @@ def actualizar_actividad(id):
         datos['estado'],
         id
     ))
+
     conn.commit()
+
     cursor.close()
     conn.close()
+
     return jsonify({
         "mensaje": "Actividad actualizada correctamente"
     }), 200
@@ -139,23 +166,30 @@ def actualizar_actividad(id):
 def eliminar_actividad(id):
     conn = conectar()
     cursor = conn.cursor()
+
     cursor.execute(
         "SELECT id FROM actividad WHERE id = %s",
         (id,)
     )
+
     if not cursor.fetchone():
         cursor.close()
         conn.close()
+
         return jsonify({
             "error": "Actividad no encontrada"
         }), 404
+
     cursor.execute(
         "DELETE FROM actividad WHERE id = %s",
         (id,)
     )
+
     conn.commit()
+
     cursor.close()
     conn.close()
+
     return jsonify({
         "mensaje": "Actividad eliminada correctamente"
     }), 200

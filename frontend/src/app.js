@@ -2,9 +2,15 @@ const URL_BACKEND = "http://127.0.0.1:5000";
 
 function cargarActividades() {
   fetch(`${URL_BACKEND}/actividades`)
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error al obtener actividades");
+      }
+      return response.json();
+    })
     .then((data) => {
       const contenedor = document.getElementById("contenedor-actividades");
+
       contenedor.innerHTML = "";
 
       if (data.length === 0) {
@@ -13,47 +19,52 @@ function cargarActividades() {
       }
 
       data.forEach((actividad) => {
-        const div = document.createElement("div");
-        div.className = "tarjeta";
-        div.innerHTML =`
-            <h3>${actividad.nombre}</h3>
+        const tarjeta = document.createElement("div");
 
-            <p>
+        tarjeta.className = "tarjeta";
+
+        tarjeta.innerHTML = `
+          <h3>${actividad.nombre}</h3>
+
+          <p>
             <strong>Disciplina:</strong>
             ${actividad.disciplina_nombre}
-            </p>
+          </p>
 
-            <p>
+          <p>
             <strong>Espacio:</strong>
             ${actividad.espacio_nombre}
-            </p>
+          </p>
 
-            <p>
+          <p>
             <strong>Día:</strong>
             ${actividad.dia_semana}
-            </p>
+          </p>
 
-            <p>
+          <p>
             <strong>Horario:</strong>
             ${actividad.hora_inicio} - ${actividad.hora_fin}
-            </p>
+          </p>
 
-            <p>
-            <strong>Cupo:</strong>
+          <p>
+            <strong>Cupo Máximo:</strong>
             ${actividad.cupo_maximo}
-            </p>
+          </p>
 
-            <p class="estado">
+          <p class="estado">
             Estado: ${actividad.estado}
-            </p>
-          `;
-        contenedor.appendChild(div);
+          </p>
+        `;
+
+        contenedor.appendChild(tarjeta);
       });
     })
     .catch((error) => {
-      console.error("Error:", error);
-      document.getElementById("contenedor-actividades").innerHTML =
-        "<p>Error al conectar con el servidor.</p>";
+      console.error(error);
+
+      document.getElementById("contenedor-actividades").innerHTML = `
+        <p>Error al conectar con el servidor.</p>
+      `;
     });
 }
 

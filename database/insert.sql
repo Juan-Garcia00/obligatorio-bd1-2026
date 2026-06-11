@@ -1,4 +1,4 @@
-USE deportes_uni;
+USE sistema_deportes;
 
 INSERT INTO disciplina (nombre) VALUES
 ('Fútbol'),('Básquetbol'),('Atletismo'),('Vóleibol'),('Yoga'),('Funcional'),('Gimnasio');
