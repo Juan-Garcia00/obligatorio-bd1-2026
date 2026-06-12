@@ -2,6 +2,17 @@ DROP DATABASE IF EXISTS sistema_deportes;
 CREATE DATABASE sistema_deportes;
 USE sistema_deportes;
 
+
+CREATE TABLE facultad (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(120) NOT NULL UNIQUE
+);
+
+CREATE TABLE carrera (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(120) NOT NULL UNIQUE
+);
+
 CREATE TABLE estudiante (
     id INT AUTO_INCREMENT PRIMARY KEY,
     documento VARCHAR(20) NOT NULL UNIQUE,
@@ -13,16 +24,6 @@ CREATE TABLE estudiante (
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_estudiante_carrera FOREIGN KEY (carrera_id) REFERENCES carrera(id),
     CONSTRAINT fk_estudiante_facultad FOREIGN KEY (facultad_id) REFERENCES facultad(id)
-);
-
-CREATE TABLE facultad (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(120) NOT NULL UNIQUE
-);
-
-CREATE TABLE carrera (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(120) NOT NULL UNIQUE
 );
 
 CREATE TABLE disciplina (
@@ -51,7 +52,6 @@ CREATE TABLE actividad (
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_actividad_disciplina FOREIGN KEY (disciplina_id) REFERENCES disciplina(id),
     CONSTRAINT fk_actividad_espacio FOREIGN KEY (espacio_id) REFERENCES espacio(id),
-    CONSTRAINT fk_actividad_inscripcion FOREIGN KEY (id) REFERENCES inscripcion(actividad_id),
     CONSTRAINT chk_horario CHECK (hora_fin > hora_inicio)
 );
 

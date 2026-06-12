@@ -1,9 +1,10 @@
 
 -- 1. Actividades con mayor cantidad de inscriptos confirmados
-SELECT actividad_id, COUNT(*) AS total_confirmados
-FROM inscripcion
-WHERE estado = 'CONFIRMADA'
-GROUP BY actividad_id
+SELECT a.id, a.nombre, COUNT(*) AS total_confirmados
+FROM inscripcion i
+JOIN actividad a ON a.id = i.actividad_id
+WHERE i.estado = 'CONFIRMADA'
+GROUP BY a.id, a.nombre
 ORDER BY total_confirmados DESC;
 
 
@@ -12,7 +13,7 @@ SELECT id AS id_actividad, nombre, cupo_maximo,
        (cupo_maximo - (SELECT COUNT(*) FROM inscripcion WHERE actividad_id = actividad.id AND estado = 'CONFIRMADA')) AS cupos_libres
 FROM actividad
 WHERE estado = 'ABIERTA'
-HAVING cupos_libres > 0;
+  AND (cupo_maximo - (SELECT COUNT(*) FROM inscripcion WHERE actividad_id = actividad.id AND estado = 'CONFIRMADA')) > 0;
 
 
 -- 3. Cantidad de inscriptos por disciplina deportiva
@@ -41,11 +42,11 @@ GROUP BY a.id, a.nombre, a.cupo_maximo;
 
 
 -- 6. Porcentaje de asistencia por actividad
-
-SELECT actividad_id,
-       ROUND((COUNT(CASE WHEN presente = TRUE THEN 1 END) / COUNT(*)) * 100, 2) AS porcentaje_asistencia
-FROM asistencia
-GROUP BY actividad_id;
+SELECT a.id, a.nombre,
+       ROUND((COUNT(CASE WHEN ast.presente = TRUE THEN 1 END) / COUNT(*)) * 100, 2) AS porcentaje_asistencia
+FROM asistencia ast
+JOIN actividad a ON a.id = ast.actividad_id
+GROUP BY a.id, a.nombre
 
 
 -- 7. Estudiantes con tres o más inasistencias registradas
@@ -58,10 +59,10 @@ GROUP BY e.id, e.documento, e.nombre, e.apellido
 HAVING total_inasistencias >= 3;
 
 -- 8. Adicional 1: Estudiantes que están actualmente en Lista de Espera
-
-SELECT e.nombre, e.apellido, i.actividad_id, i.fecha_inscripcion
+SELECT e.nombre, e.apellido, a.nombre AS actividad, i.fecha_inscripcion
 FROM estudiante e
 JOIN inscripcion i ON e.id = i.estudiante_id
+JOIN actividad a ON a.id = i.actividad_id
 WHERE i.estado = 'ESPERA';
 
 
