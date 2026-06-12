@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+import mysql
 from db import conectar
 
 estudiantes_bp = Blueprint('estudiantes', __name__)
@@ -41,20 +42,34 @@ def crear_estudiante():
     datos = request.get_json()
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO estudiante
-        (documento, nombre, apellido, email, carrera, facultad)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (
-        datos['documento'],
-        datos['nombre'],
-        datos['apellido'],
-        datos['email'],
-        datos['carrera'],
-        datos['facultad']
-    ))
-    conn.commit()
-    nuevo_id = cursor.lastrowid
+    try:
+        cursor.execute("""
+            INSERT INTO estudiante
+            (documento, nombre, apellido, email, carrera_id, facultad_id)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            datos['documento'],
+            datos['nombre'],
+            datos['apellido'],
+            datos['email'],
+            datos['carrera_id'],
+            datos['facultad_id']
+        ))
+        conn.commit()
+        nuevo_id = cursor.lastrowid
+    except mysql.connector.IntegrityError as err:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        if 'documento' in str(err):
+            return jsonify({
+                "error": "El documento ya existe"
+            }), 400
+        if 'email' in str(err):
+            return jsonify({
+                "error": "El email ya existe"
+            }), 400
+        return jsonify({"error": "carrera o facultad no encontrada"}), 400
     cursor.close()
     conn.close()
     return jsonify({
@@ -78,27 +93,41 @@ def actualizar_estudiante(id):
         return jsonify({
             "error": "Estudiante no encontrado"
         }), 404
-    cursor.execute("""
-        UPDATE estudiante
-        SET documento = %s,
-            nombre = %s,
-            apellido = %s,
-            email = %s,
-            carrera = %s,
-            facultad = %s
-        WHERE id = %s
-    """, (
-        datos['documento'],
-        datos['nombre'],
-        datos['apellido'],
-        datos['email'],
-        datos['carrera'],
-        datos['facultad'],
-        id
-    ))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try: 
+        cursor.execute("""
+            UPDATE estudiante
+            SET documento = %s,
+                nombre = %s,
+                apellido = %s,
+                email = %s,
+                carrera_id = %s,
+                facultad_id = %s
+            WHERE id = %s
+        """, (
+            datos['documento'],
+            datos['nombre'],
+            datos['apellido'],
+            datos['email'],
+            datos['carrera_id'],
+            datos['facultad_id'],
+            id
+        ))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except mysql.connector.IntegrityError as err:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        if 'documento' in str(err):
+            return jsonify({
+                "error": "El documento ya existe"
+            }), 400
+        if 'email' in str(err):
+            return jsonify({
+                "error": "El email ya existe"
+            }), 400
+        return jsonify({"error": "carrera o facultad no encontrada"}), 400
     return jsonify({
         "mensaje": "Estudiante actualizado correctamente"
     }), 200
@@ -118,11 +147,21 @@ def eliminar_estudiante(id):
         return jsonify({
             "error": "Estudiante no encontrado"
         }), 404
-    cursor.execute(
-        "DELETE FROM estudiante WHERE id = %s",
-        (id,)
-    )
-    conn.commit()
+    try: 
+        cursor.execute(
+            "DELETE FROM estudiante WHERE id = %s",
+            (id,)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except mysql.connector.IntegrityError:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        return jsonify({
+            "error": "No se puede eliminar el estudiante porque tiene inscripciones asociadas"
+        }), 400
     cursor.close()
     conn.close()
     return jsonify({
