@@ -8,9 +8,21 @@ CREATE TABLE estudiante (
     nombre VARCHAR(80) NOT NULL,
     apellido VARCHAR(80) NOT NULL,
     email VARCHAR(120) NOT NULL UNIQUE,
-    carrera VARCHAR(120) NOT NULL,
-    facultad VARCHAR(120) NOT NULL,
-    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    carrera_id INT NOT NULL,
+    facultad_id INT NOT NULL,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_estudiante_carrera FOREIGN KEY (carrera_id) REFERENCES carrera(id),
+    CONSTRAINT fk_estudiante_facultad FOREIGN KEY (facultad_id) REFERENCES facultad(id)
+);
+
+CREATE TABLE facultad (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(120) NOT NULL UNIQUE
+);
+
+CREATE TABLE carrera (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(120) NOT NULL UNIQUE
 );
 
 CREATE TABLE disciplina (

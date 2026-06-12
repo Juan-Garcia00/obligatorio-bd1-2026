@@ -6,21 +6,16 @@ disciplinas_bp = Blueprint('disciplinas', __name__)
 
 @disciplinas_bp.route('/disciplinas', methods=['GET'])
 def listar_disciplinas():
-
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
-
     cursor.execute("""
         SELECT *
         FROM disciplina
         ORDER BY nombre
     """)
-
     resultado = cursor.fetchall()
-
     cursor.close()
     conn.close()
-
     return jsonify(resultado), 200
 
 
