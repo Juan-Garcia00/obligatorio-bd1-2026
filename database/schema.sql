@@ -51,6 +51,7 @@ CREATE TABLE actividad (
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_actividad_disciplina FOREIGN KEY (disciplina_id) REFERENCES disciplina(id),
     CONSTRAINT fk_actividad_espacio FOREIGN KEY (espacio_id) REFERENCES espacio(id),
+    CONSTRAINT fk_actividad_inscripcion FOREIGN KEY (id) REFERENCES inscripcion(actividad_id),
     CONSTRAINT chk_horario CHECK (hora_fin > hora_inicio)
 );
 

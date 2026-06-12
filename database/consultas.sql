@@ -24,10 +24,12 @@ GROUP BY d.id, d.nombre;
 
 
 -- 4. Cantidad de inscriptos por carrera o facultad
-SELECT e.carrera, e.facultad, COUNT(i.id) AS total_inscriptos
+SELECT c.nombre AS carrera, f.nombre AS facultad, COUNT(i.id) AS total_inscriptos
 FROM estudiante e
+JOIN carrera c ON e.carrera_id = c.id
+JOIN facultad f ON e.facultad_id = f.id
 JOIN inscripcion i ON e.id = i.estudiante_id
-GROUP BY e.carrera, e.facultad;
+GROUP BY e.carrera_id, e.facultad_id, c.nombre, f.nombre;
 
 
 -- 5. Porcentaje de ocupación de cada actividad
