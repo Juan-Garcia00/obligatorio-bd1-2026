@@ -1,18 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
-export const Actividades = () => {
-  const [actividades, setActividades] = useState([])
+export const Actividades = ({ rol }) => {
+  const [actividades, setActividades] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/actividades',{
-      headers:{'X-rol': rol}
+    fetch("http://localhost:5000/actividades", {
+      headers: { "X-Rol": rol },
     })
-      .then(res => res.json())
-      .then(data => setActividades(data))
-  }, [])
+      .then((res) => res.json())
+      .then((data) => setActividades(data));
+  }, []);
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: "20px" }}>
       <h2>Actividades</h2>
       <table border="1" cellPadding="8">
         <thead>
@@ -28,7 +28,7 @@ export const Actividades = () => {
           </tr>
         </thead>
         <tbody>
-          {actividades.map(a => (
+          {actividades.map((a) => (
             <tr key={a.id}>
               <td>{a.nombre}</td>
               <td>{a.disciplina_nombre}</td>
@@ -43,5 +43,5 @@ export const Actividades = () => {
         </tbody>
       </table>
     </div>
-  )
-}
+  );
+};
