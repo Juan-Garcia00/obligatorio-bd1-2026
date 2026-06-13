@@ -178,8 +178,6 @@ def eliminar_estudiante(id):
             (id,)
         )
         conn.commit()
-        cursor.close()
-        conn.close()
     except mysql.connector.IntegrityError:
         conn.rollback()
         cursor.close()
