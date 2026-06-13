@@ -12,6 +12,7 @@ def listar_inscripciones():
         return error
     
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT i.*, e.nombre AS estudiante_nombre, e.apellido AS estudiante_apellido, a.nombre AS actividad_nombre
@@ -33,6 +34,7 @@ def listar_inscripciones_actividad(actividad_id):
         return error
     
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT i.*, e.nombre AS estudiante_nombre, e.apellido AS estudiante_apellido, e.documento
@@ -59,6 +61,7 @@ def crear_inscripcion():
     if not estudiante_id or not actividad_id:
         return jsonify({"error": "Debe enviar estudiante_id y actividad_id"}), 400
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id FROM estudiante WHERE id = %s", (estudiante_id,))
     if not cursor.fetchone():

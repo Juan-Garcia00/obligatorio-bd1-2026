@@ -12,6 +12,7 @@ def listar_espacios():
         return error
     
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM espacio ORDER BY nombre")
     resultado = cursor.fetchall()
@@ -30,6 +31,7 @@ def crear_espacio():
     if not datos or not datos.get('nombre') or not datos.get('ubicacion') or not datos.get('capacidad'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("INSERT INTO espacio (nombre, ubicacion, capacidad) VALUES (%s, %s, %s)",
                    (datos['nombre'], datos['ubicacion'], datos['capacidad']))
@@ -50,6 +52,7 @@ def actualizar_espacio(id):
     if not datos or not datos.get('nombre') or not datos.get('ubicacion') or not datos.get('capacidad'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("UPDATE espacio SET nombre = %s, ubicacion = %s, capacidad = %s WHERE id = %s",
                    (datos['nombre'], datos['ubicacion'], datos['capacidad'], id))
@@ -65,4 +68,5 @@ def eliminar_espacio(id):
     if error:
         return error
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()

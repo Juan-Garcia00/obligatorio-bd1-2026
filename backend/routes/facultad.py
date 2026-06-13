@@ -10,6 +10,7 @@ def listar_facultades():
     if error:
         return error
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT *

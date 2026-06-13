@@ -11,6 +11,7 @@ def listar_estudiantes():
     if error:
         return error
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT *
@@ -30,6 +31,7 @@ def obtener_estudiante(id):
         return error
     
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
         "SELECT * FROM estudiante WHERE id = %s",
@@ -53,6 +55,7 @@ def crear_estudiante():
     
     datos = request.get_json()
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     try:
         cursor.execute("""
@@ -98,6 +101,7 @@ def actualizar_estudiante(id):
     
     datos = request.get_json()
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute(
         "SELECT id FROM estudiante WHERE id = %s",
@@ -156,6 +160,7 @@ def eliminar_estudiante(id):
         return error
     
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute(
         "SELECT id FROM estudiante WHERE id = %s",

@@ -12,6 +12,7 @@ def mas_confirmados():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT a.id, a.nombre, COUNT(*) AS total_confirmados
@@ -34,6 +35,7 @@ def cupos_disponibles():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT id AS id_actividad, nombre, cupo_maximo,
@@ -57,6 +59,7 @@ def inscriptos_por_disciplina():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT d.nombre AS disciplina, COUNT(i.id) AS total_inscriptos
@@ -78,6 +81,7 @@ def inscriptos_por_carrera_facultad():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT c.nombre AS carrera, f.nombre AS facultad, COUNT(i.id) AS total_inscriptos
@@ -100,6 +104,7 @@ def porcentaje_ocupacion():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT a.id AS id_actividad, a.nombre,
@@ -121,6 +126,7 @@ def porcentaje_asistencia():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT a.id, a.nombre,
@@ -142,6 +148,7 @@ def estudiantes_con_inasistencias():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT e.documento, e.nombre, e.apellido, COUNT(*) AS total_inasistencias
@@ -164,6 +171,7 @@ def lista_espera():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT e.nombre, e.apellido, a.nombre AS actividad, i.fecha_inscripcion
@@ -185,6 +193,7 @@ def espacios_mas_utilizados():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT esp.nombre AS espacio, COUNT(a.id) AS cantidad_de_actividades
@@ -206,6 +215,7 @@ def inscripciones_por_estado():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT estado, COUNT(*) AS total

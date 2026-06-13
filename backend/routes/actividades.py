@@ -13,6 +13,7 @@ def listar_actividades():
 
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT a.*, d.nombre AS disciplina_nombre, e.nombre AS espacio_nombre
@@ -64,6 +65,7 @@ def actualizar_actividad(id):
     if not datos or not datos.get('nombre'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM actividad WHERE id = %s", (id,))
     if not cursor.fetchone():
@@ -90,6 +92,7 @@ def eliminar_actividad(id):
         return error
     
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM actividad WHERE id = %s", (id,))
     if not cursor.fetchone():

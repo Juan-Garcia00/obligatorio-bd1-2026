@@ -11,6 +11,7 @@ def listar_disciplinas():
     if error:
         return error
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM disciplina ORDER BY nombre")
     resultado = cursor.fetchall()
@@ -28,6 +29,7 @@ def crear_disciplina():
     if not datos or not datos.get('nombre'):
         return jsonify({"error": "El nombre es obligatorio"}), 400
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("INSERT INTO disciplina (nombre, descripcion) VALUES (%s, %s)",
                    (datos['nombre'], datos.get('descripcion')))
@@ -47,6 +49,7 @@ def actualizar_disciplina(id):
     if not datos or not datos.get('nombre'):
         return jsonify({"error": "El nombre es obligatorio"}), 400
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("UPDATE disciplina SET nombre = %s, descripcion = %s WHERE id = %s",
                    (datos['nombre'], datos.get('descripcion'), id))
@@ -62,6 +65,7 @@ def eliminar_disciplina(id):
     if error:
         return error
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("DELETE FROM disciplina WHERE id = %s", (id,))
     conn.commit()
