@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from backend.autenticacion import verificar_rol
 from db import conectar
 
 actividades_bp = Blueprint('actividades', __name__)
@@ -6,6 +7,11 @@ actividades_bp = Blueprint('actividades', __name__)
 
 @actividades_bp.route('/actividades', methods=['GET'])
 def listar_actividades():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -26,6 +32,10 @@ def listar_actividades():
 
 @actividades_bp.route('/actividades', methods=['POST'])
 def crear_actividad():
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
+
     datos = request.get_json()
     campos = ['nombre', 'disciplina_id', 'espacio_id', 'cupo_maximo', 'dia_semana', 'hora_inicio', 'hora_fin']
     if not datos or not all(datos.get(c) for c in campos):
@@ -46,6 +56,10 @@ def crear_actividad():
 
 @actividades_bp.route('/actividades/<int:id>', methods=['PUT'])
 def actualizar_actividad(id):
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
+
     datos = request.get_json()
     if not datos or not datos.get('nombre'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
@@ -71,6 +85,10 @@ def actualizar_actividad(id):
 
 @actividades_bp.route('/actividades/<int:id>', methods=['DELETE'])
 def eliminar_actividad(id):
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
+    
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM actividad WHERE id = %s", (id,))
