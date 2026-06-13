@@ -4,31 +4,28 @@ const API = "http://localhost:5000";
 
 const REPORTES = [
   {
-    key: "inscriptos_confirmados",
+    key: "mas-confirmados",
     label: "1. Actividades con más inscriptos confirmados",
   },
-  { key: "cupos_disponibles", label: "2. Actividades con cupos disponibles" },
-  { key: "inscriptos_por_disciplina", label: "3. Inscriptos por disciplina" },
-  { key: "inscriptos_por_carrera", label: "4. Inscriptos por carrera" },
-  { key: "inscriptos_por_facultad", label: "4b. Inscriptos por facultad" },
+  { key: "cupos-disponibles", label: "2. Actividades con cupos disponibles" },
+  { key: "inscriptos-disciplina", label: "3. Inscriptos por disciplina" },
   {
-    key: "ocupacion_actividades",
-    label: "5. Porcentaje de ocupación por actividad",
+    key: "inscriptos-carrera-facultad",
+    label: "4. Inscriptos por carrera y facultad",
   },
-  {
-    key: "asistencia_actividades",
-    label: "6. Porcentaje de asistencia por actividad",
-  },
-  {
-    key: "estudiantes_inasistencias",
-    label: "7. Estudiantes con 3 o más inasistencias",
-  },
+  { key: "ocupacion", label: "5. Porcentaje de ocupación por actividad" },
+  { key: "asistencia", label: "6. Porcentaje de asistencia por actividad" },
+  { key: "inasistencias", label: "7. Estudiantes con 3 o más inasistencias" },
+  { key: "lista-espera", label: "8. Estudiantes en lista de espera" },
+  { key: "espacios-utilizados", label: "9. Espacios más utilizados" },
+  { key: "inscripciones-por-estado", label: "10. Inscripciones por estado" },
 ];
 
 export const Reportes = ({ rol }) => {
   const [seleccionado, setSeleccionado] = useState(null);
   const [datos, setDatos] = useState([]);
   const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState("");
 
   const headers = { "X-Rol": rol };
 
@@ -36,13 +33,22 @@ export const Reportes = ({ rol }) => {
     setSeleccionado(key);
     setCargando(true);
     setDatos([]);
+    setError("");
     fetch(`${API}/reportes/${key}`, { headers })
       .then((r) => r.json())
       .then((data) => {
+        if (data.error) {
+          setError(data.error);
+          setCargando(false);
+          return;
+        }
         setDatos(data);
         setCargando(false);
       })
-      .catch(() => setCargando(false));
+      .catch(() => {
+        setError("Error al conectar con el servidor");
+        setCargando(false);
+      });
   };
 
   const columnas = datos.length > 0 ? Object.keys(datos[0]) : [];
@@ -77,8 +83,9 @@ export const Reportes = ({ rol }) => {
       </div>
 
       {cargando && <p>Cargando...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {!cargando && datos.length > 0 && (
+      {!cargando && !error && datos.length > 0 && (
         <table
           border="1"
           cellPadding="8"
@@ -103,7 +110,7 @@ export const Reportes = ({ rol }) => {
         </table>
       )}
 
-      {!cargando && seleccionado && datos.length === 0 && (
+      {!cargando && !error && seleccionado && datos.length === 0 && (
         <p>No hay datos para mostrar.</p>
       )}
     </div>
