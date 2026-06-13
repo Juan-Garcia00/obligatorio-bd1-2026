@@ -1,12 +1,16 @@
-
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify
 from db import conectar
+from backend.autenticacion import verificar_rol
 
 reportes_bp = Blueprint('reportes', __name__)
 
 
 @reportes_bp.route('/reportes/mas-confirmados', methods=['GET'])
 def mas_confirmados():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -25,6 +29,10 @@ def mas_confirmados():
 
 @reportes_bp.route('/reportes/cupos-disponibles', methods=['GET'])
 def cupos_disponibles():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -44,6 +52,10 @@ def cupos_disponibles():
 
 @reportes_bp.route('/reportes/inscriptos-disciplina', methods=['GET'])
 def inscriptos_por_disciplina():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -61,13 +73,19 @@ def inscriptos_por_disciplina():
 
 @reportes_bp.route('/reportes/inscriptos-carrera-facultad', methods=['GET'])
 def inscriptos_por_carrera_facultad():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
-        SELECT e.carrera, e.facultad, COUNT(i.id) AS total_inscriptos
+        SELECT c.nombre AS carrera, f.nombre AS facultad, COUNT(i.id) AS total_inscriptos
         FROM estudiante e
+        JOIN carrera c ON e.carrera_id = c.id
+        JOIN facultad f ON e.facultad_id = f.id
         JOIN inscripcion i ON e.id = i.estudiante_id
-        GROUP BY e.carrera, e.facultad
+        GROUP BY e.carrera_id, e.facultad_id, c.nombre, f.nombre
     """)
     resultado = cursor.fetchall()
     cursor.close()
@@ -77,6 +95,10 @@ def inscriptos_por_carrera_facultad():
 
 @reportes_bp.route('/reportes/ocupacion', methods=['GET'])
 def porcentaje_ocupacion():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -94,6 +116,10 @@ def porcentaje_ocupacion():
 
 @reportes_bp.route('/reportes/asistencia', methods=['GET'])
 def porcentaje_asistencia():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -111,6 +137,10 @@ def porcentaje_asistencia():
 
 @reportes_bp.route('/reportes/inasistencias', methods=['GET'])
 def estudiantes_con_inasistencias():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -129,6 +159,10 @@ def estudiantes_con_inasistencias():
 
 @reportes_bp.route('/reportes/lista-espera', methods=['GET'])
 def lista_espera():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -146,6 +180,10 @@ def lista_espera():
 
 @reportes_bp.route('/reportes/espacios-utilizados', methods=['GET'])
 def espacios_mas_utilizados():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -163,6 +201,10 @@ def espacios_mas_utilizados():
 
 @reportes_bp.route('/reportes/inscripciones-por-estado', methods=['GET'])
 def inscripciones_por_estado():
+    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""

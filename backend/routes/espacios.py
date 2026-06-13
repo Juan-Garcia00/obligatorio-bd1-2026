@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from backend.autenticacion import verificar_rol
 from db import conectar
 
 espacios_bp = Blueprint('espacios', __name__)
@@ -6,6 +7,10 @@ espacios_bp = Blueprint('espacios', __name__)
 
 @espacios_bp.route('/espacios', methods=['GET'])
 def listar_espacios():
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+    
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM espacio ORDER BY nombre")
@@ -17,6 +22,10 @@ def listar_espacios():
 
 @espacios_bp.route('/espacios', methods=['POST'])
 def crear_espacio():
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
+    
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('ubicacion') or not datos.get('capacidad'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
@@ -33,6 +42,10 @@ def crear_espacio():
 
 @espacios_bp.route('/espacios/<int:id>', methods=['PUT'])
 def actualizar_espacio(id):
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
+
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('ubicacion') or not datos.get('capacidad'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
@@ -48,5 +61,8 @@ def actualizar_espacio(id):
 
 @espacios_bp.route('/espacios/<int:id>', methods=['DELETE'])
 def eliminar_espacio(id):
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
     conn = conectar()
     cursor = conn.cursor()

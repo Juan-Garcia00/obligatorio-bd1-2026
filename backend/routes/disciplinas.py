@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from backend.autenticacion import verificar_rol
 from db import conectar
 
 disciplinas_bp = Blueprint('disciplinas', __name__)
@@ -6,6 +7,9 @@ disciplinas_bp = Blueprint('disciplinas', __name__)
 
 @disciplinas_bp.route('/disciplinas', methods=['GET'])
 def listar_disciplinas():
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM disciplina ORDER BY nombre")
@@ -17,6 +21,9 @@ def listar_disciplinas():
 
 @disciplinas_bp.route('/disciplinas', methods=['POST'])
 def crear_disciplina():
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
     datos = request.get_json()
     if not datos or not datos.get('nombre'):
         return jsonify({"error": "El nombre es obligatorio"}), 400
@@ -33,6 +40,9 @@ def crear_disciplina():
 
 @disciplinas_bp.route('/disciplinas/<int:id>', methods=['PUT'])
 def actualizar_disciplina(id):
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
     datos = request.get_json()
     if not datos or not datos.get('nombre'):
         return jsonify({"error": "El nombre es obligatorio"}), 400
@@ -48,6 +58,9 @@ def actualizar_disciplina(id):
 
 @disciplinas_bp.route('/disciplinas/<int:id>', methods=['DELETE'])
 def eliminar_disciplina(id):
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM disciplina WHERE id = %s", (id,))

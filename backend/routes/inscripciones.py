@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from backend.autenticacion import verificar_rol
 from db import conectar
 
 inscripciones_bp = Blueprint('inscripciones', __name__)
@@ -6,6 +7,10 @@ inscripciones_bp = Blueprint('inscripciones', __name__)
 
 @inscripciones_bp.route('/inscripciones', methods=['GET'])
 def listar_inscripciones():
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+    
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -23,6 +28,10 @@ def listar_inscripciones():
 
 @inscripciones_bp.route('/actividades/<int:actividad_id>/inscripciones', methods=['GET'])
 def listar_inscripciones_actividad(actividad_id):
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+    
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -40,6 +49,10 @@ def listar_inscripciones_actividad(actividad_id):
 
 @inscripciones_bp.route('/inscripciones', methods=['POST'])
 def crear_inscripcion():
+    error = verificar_rol(['ESTUDIANTE'])
+    if error:
+        return error
+    
     datos = request.get_json()
     estudiante_id = datos.get('estudiante_id')
     actividad_id = datos.get('actividad_id')

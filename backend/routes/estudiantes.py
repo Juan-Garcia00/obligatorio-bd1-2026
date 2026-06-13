@@ -1,11 +1,15 @@
 from flask import Blueprint, request, jsonify
 import mysql
+from backend.autenticacion import verificar_rol
 from db import conectar
 
 estudiantes_bp = Blueprint('estudiantes', __name__)
 
 @estudiantes_bp.route('/estudiantes', methods=['GET'])
 def listar_estudiantes():
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -21,6 +25,10 @@ def listar_estudiantes():
 
 @estudiantes_bp.route('/estudiantes/<int:id>', methods=['GET'])
 def obtener_estudiante(id):
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
+    if error:
+        return error
+    
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
@@ -39,6 +47,10 @@ def obtener_estudiante(id):
 
 @estudiantes_bp.route('/estudiantes', methods=['POST'])
 def crear_estudiante():
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
+    
     datos = request.get_json()
     conn = conectar()
     cursor = conn.cursor()
@@ -80,6 +92,10 @@ def crear_estudiante():
 
 @estudiantes_bp.route('/estudiantes/<int:id>', methods=['PUT'])
 def actualizar_estudiante(id):
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
+    
     datos = request.get_json()
     conn = conectar()
     cursor = conn.cursor()
@@ -135,6 +151,10 @@ def actualizar_estudiante(id):
 
 @estudiantes_bp.route('/estudiantes/<int:id>', methods=['DELETE'])
 def eliminar_estudiante(id):
+    error = verificar_rol(['ADMIN'])
+    if error:
+        return error
+    
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute(
