@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-import mysql
+import mysql.connector
 from autenticacion import verificar_rol
 from db import conectar
 

@@ -7,7 +7,7 @@ reportes_bp = Blueprint('reportes', __name__)
 
 @reportes_bp.route('/reportes/mas-confirmados', methods=['GET'])
 def mas_confirmados():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -30,7 +30,7 @@ def mas_confirmados():
 
 @reportes_bp.route('/reportes/cupos-disponibles', methods=['GET'])
 def cupos_disponibles():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -54,7 +54,7 @@ def cupos_disponibles():
 
 @reportes_bp.route('/reportes/inscriptos-disciplina', methods=['GET'])
 def inscriptos_por_disciplina():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -76,7 +76,7 @@ def inscriptos_por_disciplina():
 
 @reportes_bp.route('/reportes/inscriptos-carrera-facultad', methods=['GET'])
 def inscriptos_por_carrera_facultad():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -99,7 +99,7 @@ def inscriptos_por_carrera_facultad():
 
 @reportes_bp.route('/reportes/ocupacion', methods=['GET'])
 def porcentaje_ocupacion():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -121,7 +121,7 @@ def porcentaje_ocupacion():
 
 @reportes_bp.route('/reportes/asistencia', methods=['GET'])
 def porcentaje_asistencia():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -143,7 +143,7 @@ def porcentaje_asistencia():
 
 @reportes_bp.route('/reportes/inasistencias', methods=['GET'])
 def estudiantes_con_inasistencias():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -166,7 +166,7 @@ def estudiantes_con_inasistencias():
 
 @reportes_bp.route('/reportes/lista-espera', methods=['GET'])
 def lista_espera():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -188,7 +188,7 @@ def lista_espera():
 
 @reportes_bp.route('/reportes/espacios-utilizados', methods=['GET'])
 def espacios_mas_utilizados():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -210,7 +210,7 @@ def espacios_mas_utilizados():
 
 @reportes_bp.route('/reportes/inscripciones-por-estado', methods=['GET'])
 def inscripciones_por_estado():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 

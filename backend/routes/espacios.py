@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from autenticacion import verificar_rol
 from db import conectar
+import mysql.connector
 
 espacios_bp = Blueprint('espacios', __name__)
 
@@ -10,7 +11,7 @@ def listar_espacios():
     error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
-    
+
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
@@ -26,15 +27,21 @@ def crear_espacio():
     error = verificar_rol(['ADMIN'])
     if error:
         return error
-    
+
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('ubicacion') or not datos.get('capacidad'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
+    try:
+        capacidad = int(datos['capacidad'])
+        if capacidad <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({"error": "La capacidad debe ser un número entero positivo"}), 400
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("INSERT INTO espacio (nombre, ubicacion, capacidad) VALUES (%s, %s, %s)",
-                   (datos['nombre'], datos['ubicacion'], datos['capacidad']))
+                   (datos['nombre'], datos['ubicacion'], capacidad))
     conn.commit()
     nuevo_id = cursor.lastrowid
     cursor.close()
@@ -51,11 +58,17 @@ def actualizar_espacio(id):
     datos = request.get_json()
     if not datos or not datos.get('nombre') or not datos.get('ubicacion') or not datos.get('capacidad'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
+    try:
+        capacidad = int(datos['capacidad'])
+        if capacidad <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({"error": "La capacidad debe ser un número entero positivo"}), 400
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
     cursor.execute("UPDATE espacio SET nombre = %s, ubicacion = %s, capacidad = %s WHERE id = %s",
-                   (datos['nombre'], datos['ubicacion'], datos['capacidad'], id))
+                   (datos['nombre'], datos['ubicacion'], capacidad, id))
     conn.commit()
     cursor.close()
     conn.close()
@@ -67,6 +80,25 @@ def eliminar_espacio(id):
     error = verificar_rol(['ADMIN'])
     if error:
         return error
+
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
+    cursor.execute("SELECT id FROM espacio WHERE id = %s", (id,))
+    if not cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "Espacio no encontrado"}), 404
+
+    try:
+        cursor.execute("DELETE FROM espacio WHERE id = %s", (id,))
+        conn.commit()
+    except mysql.connector.IntegrityError:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "No se puede eliminar: el espacio tiene actividades asociadas"}), 400
+
+    cursor.close()
+    conn.close()
+    return jsonify({"mensaje": "Eliminado"}), 200

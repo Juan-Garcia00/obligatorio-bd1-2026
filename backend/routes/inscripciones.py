@@ -94,3 +94,40 @@ def crear_inscripcion():
     cursor.close()
     conn.close()
     return jsonify({"estado": estado}), 201
+
+@inscripciones_bp.route('/inscripciones/<int:id>', methods=['DELETE'])
+def cancelar_inscripcion(id):
+    error = verificar_rol(['ESTUDIANTE', 'ADMIN'])
+    if error:
+        return error
+
+    conn = conectar()
+    conn.set_charset_collation('utf8mb4')
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM inscripcion WHERE id = %s", (id,))
+    inscripcion = cursor.fetchone()
+    if not inscripcion:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "Inscripción no encontrada"}), 404
+
+    cursor_del = conn.cursor()
+    cursor_del.execute("DELETE FROM inscripcion WHERE id = %s", (id,))
+
+    if inscripcion['estado'] == 'CONFIRMADA':
+        cursor.execute("""
+            SELECT id FROM inscripcion
+            WHERE actividad_id = %s AND estado = 'ESPERA'
+            ORDER BY fecha_inscripcion ASC
+            LIMIT 1
+        """, (inscripcion['actividad_id'],))
+        siguiente = cursor.fetchone()
+        if siguiente:
+            cursor_del.execute("UPDATE inscripcion SET estado = 'CONFIRMADA' WHERE id = %s", (siguiente['id'],))
+
+    conn.commit()
+    cursor.close()
+    cursor_del.close()
+    conn.close()
+    return jsonify({"mensaje": "Inscripción cancelada correctamente"}), 200

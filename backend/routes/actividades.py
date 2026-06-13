@@ -7,7 +7,7 @@ actividades_bp = Blueprint('actividades', __name__)
 
 @actividades_bp.route('/actividades', methods=['GET'])
 def listar_actividades():
-    error = verificar_rol(['ALUMNO', 'DOCENTE', 'ADMIN'])
+    error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
 
@@ -41,12 +41,18 @@ def crear_actividad():
     campos = ['nombre', 'disciplina_id', 'espacio_id', 'cupo_maximo', 'dia_semana', 'hora_inicio', 'hora_fin']
     if not datos or not all(datos.get(c) for c in campos):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
+    try:
+        cupo = int(datos['cupo_maximo'])
+        if cupo <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({"error": "El cupo máximo debe ser un número entero positivo"}), 400
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute("""
         INSERT INTO actividad (nombre, disciplina_id, espacio_id, cupo_maximo, dia_semana, hora_inicio, hora_fin, estado)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """, (datos['nombre'], datos['disciplina_id'], datos['espacio_id'], datos['cupo_maximo'],
+    """, (datos['nombre'], datos['disciplina_id'], datos['espacio_id'], cupo,
           datos['dia_semana'], datos['hora_inicio'], datos['hora_fin'], datos.get('estado', 'ABIERTA')))
     conn.commit()
     nuevo_id = cursor.lastrowid
@@ -64,6 +70,12 @@ def actualizar_actividad(id):
     datos = request.get_json()
     if not datos or not datos.get('nombre'):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
+    try:
+        cupo = int(datos['cupo_maximo'])
+        if cupo <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({"error": "El cupo máximo debe ser un número entero positivo"}), 400
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
@@ -77,7 +89,7 @@ def actualizar_actividad(id):
         SET nombre = %s, disciplina_id = %s, espacio_id = %s, cupo_maximo = %s,
             dia_semana = %s, hora_inicio = %s, hora_fin = %s, estado = %s
         WHERE id = %s
-    """, (datos['nombre'], datos['disciplina_id'], datos['espacio_id'], datos['cupo_maximo'],
+    """, (datos['nombre'], datos['disciplina_id'], datos['espacio_id'], cupo,
           datos['dia_semana'], datos['hora_inicio'], datos['hora_fin'], datos['estado'], id))
     conn.commit()
     cursor.close()
