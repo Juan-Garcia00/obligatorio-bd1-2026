@@ -1,7 +1,3 @@
-DROP DATABASE IF EXISTS sistema_deportes;
-CREATE DATABASE sistema_deportes;
-USE sistema_deportes;
-
 
 CREATE TABLE facultad (
     id INT AUTO_INCREMENT PRIMARY KEY,
