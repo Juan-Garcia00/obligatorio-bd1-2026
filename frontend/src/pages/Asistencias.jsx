@@ -4,7 +4,9 @@ export const Asistencias = () => {
   const [asistencias, setAsistencias] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:5000/asistencias')
+    fetch('http://localhost:5000/asistencias',{
+      headers: {'X-rol': rol}
+    })
       .then(res => res.json())
       .then(data => setAsistencias(data))
   }, [])

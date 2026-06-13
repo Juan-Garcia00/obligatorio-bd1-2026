@@ -4,7 +4,9 @@ export const Inscripciones = () => {
   const [inscripciones, setInscripciones] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:5000/inscripciones')
+    fetch('http://localhost:5000/inscripciones',{
+      headers: {'X-rol': rol}
+    })
       .then(res => res.json())
       .then(data => setInscripciones(data))
   }, [])

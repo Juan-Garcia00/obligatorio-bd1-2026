@@ -4,7 +4,9 @@ export const Actividades = () => {
   const [actividades, setActividades] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:5000/actividades')
+    fetch('http://localhost:5000/actividades',{
+      headers:{'X-rol': rol}
+    })
       .then(res => res.json())
       .then(data => setActividades(data))
   }, [])

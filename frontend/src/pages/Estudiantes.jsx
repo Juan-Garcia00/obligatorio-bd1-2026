@@ -4,7 +4,9 @@ export const Estudiantes = () => {
   const [estudiantes, setEstudiantes] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:5000/estudiantes')
+    fetch('http://localhost:5000/estudiantes',{
+      headers: {'X-rol': rol}
+    })
       .then(res => res.json())
       .then(data => setEstudiantes(data))
   }, [])
