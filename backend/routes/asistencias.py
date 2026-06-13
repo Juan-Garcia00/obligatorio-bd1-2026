@@ -12,6 +12,7 @@ def listar_asistencias():
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT ast.*, e.nombre AS estudiante_nombre, e.apellido AS estudiante_apellido, a.nombre AS actividad_nombre
@@ -33,6 +34,7 @@ def listar_asistencias_actividad(actividad_id):
         return error
 
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT ast.*, e.nombre AS estudiante_nombre, e.apellido AS estudiante_apellido
@@ -61,6 +63,7 @@ def registrar_asistencia():
     if not estudiante_id or not actividad_id or not fecha:
         return jsonify({"error": "Faltan datos obligatorios"}), 400
     conn = conectar()
+    conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id FROM actividad WHERE id = %s", (actividad_id,))
     if not cursor.fetchone():
