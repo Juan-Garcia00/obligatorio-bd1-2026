@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from backend.autenticacion import verificar_rol
+from autenticacion import verificar_rol
 from db import conectar
 
 carreras_bp = Blueprint('carreras', __name__)
