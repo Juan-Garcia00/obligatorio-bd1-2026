@@ -7,7 +7,8 @@ from routes.asistencias import asistencias_bp
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": "*"}})
+#CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 app.register_blueprint(estudiantes_bp)
 app.register_blueprint(actividades_bp)
