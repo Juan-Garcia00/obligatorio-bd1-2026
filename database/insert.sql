@@ -1,3 +1,4 @@
+SET NAMES utf8mb4;
 
 INSERT INTO facultad (nombre) VALUES
 ('Facultad de Ingeniería y Tecnologías'),
