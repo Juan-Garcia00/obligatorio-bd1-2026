@@ -11,7 +11,6 @@ def listar_actividades():
     if error:
         return error
 
-
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
@@ -49,10 +48,12 @@ def crear_actividad():
         return jsonify({"error": "El cupo máximo debe ser un número entero positivo"}), 400
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("""
+    cursor.execute(
+    """
         INSERT INTO actividad (nombre, disciplina_id, espacio_id, cupo_maximo, dia_semana, hora_inicio, hora_fin, estado)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """, (datos['nombre'], datos['disciplina_id'], datos['espacio_id'], cupo,
+    """,
+      (datos['nombre'], datos['disciplina_id'], datos['espacio_id'], cupo,
           datos['dia_semana'], datos['hora_inicio'], datos['hora_fin'], datos.get('estado', 'ABIERTA')))
     conn.commit()
     nuevo_id = cursor.lastrowid
@@ -68,7 +69,8 @@ def actualizar_actividad(id):
         return error
 
     datos = request.get_json()
-    if not datos or not datos.get('nombre'):
+    campos = ['nombre', 'disciplina_id', 'espacio_id', 'cupo_maximo', 'dia_semana', 'hora_inicio', 'hora_fin', 'estado']
+    if not datos or not all(datos.get(c) for c in campos):
         return jsonify({"error": "Faltan datos obligatorios"}), 400
     try:
         cupo = int(datos['cupo_maximo'])
@@ -102,7 +104,7 @@ def eliminar_actividad(id):
     error = verificar_rol(['ADMIN'])
     if error:
         return error
-    
+
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()

@@ -29,7 +29,7 @@ def obtener_estudiante(id):
     error = verificar_rol(['ESTUDIANTE', 'DOCENTE', 'ADMIN'])
     if error:
         return error
-    
+
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor(dictionary=True)
@@ -52,8 +52,12 @@ def crear_estudiante():
     error = verificar_rol(['ADMIN'])
     if error:
         return error
-    
+
     datos = request.get_json()
+    campos = ['documento', 'nombre', 'apellido', 'email', 'carrera_id', 'facultad_id']
+    if not datos or not all(datos.get(c) for c in campos):
+        return jsonify({"error": "Faltan datos obligatorios"}), 400
+
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
@@ -77,13 +81,9 @@ def crear_estudiante():
         cursor.close()
         conn.close()
         if 'documento' in str(err):
-            return jsonify({
-                "error": "El documento ya existe"
-            }), 400
+            return jsonify({"error": "El documento ya existe"}), 400
         if 'email' in str(err):
-            return jsonify({
-                "error": "El email ya existe"
-            }), 400
+            return jsonify({"error": "El email ya existe"}), 400
         return jsonify({"error": "carrera o facultad no encontrada"}), 400
     cursor.close()
     conn.close()
@@ -98,8 +98,12 @@ def actualizar_estudiante(id):
     error = verificar_rol(['ADMIN'])
     if error:
         return error
-    
+
     datos = request.get_json()
+    campos = ['documento', 'nombre', 'apellido', 'email', 'carrera_id', 'facultad_id']
+    if not datos or not all(datos.get(c) for c in campos):
+        return jsonify({"error": "Faltan datos obligatorios"}), 400
+
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
@@ -113,7 +117,7 @@ def actualizar_estudiante(id):
         return jsonify({
             "error": "Estudiante no encontrado"
         }), 404
-    try: 
+    try:
         cursor.execute("""
             UPDATE estudiante
             SET documento = %s,
@@ -140,13 +144,9 @@ def actualizar_estudiante(id):
         cursor.close()
         conn.close()
         if 'documento' in str(err):
-            return jsonify({
-                "error": "El documento ya existe"
-            }), 400
+            return jsonify({"error": "El documento ya existe"}), 400
         if 'email' in str(err):
-            return jsonify({
-                "error": "El email ya existe"
-            }), 400
+            return jsonify({"error": "El email ya existe"}), 400
         return jsonify({"error": "carrera o facultad no encontrada"}), 400
     return jsonify({
         "mensaje": "Estudiante actualizado correctamente"
@@ -158,7 +158,7 @@ def eliminar_estudiante(id):
     error = verificar_rol(['ADMIN'])
     if error:
         return error
-    
+
     conn = conectar()
     conn.set_charset_collation('utf8mb4')
     cursor = conn.cursor()
@@ -172,7 +172,7 @@ def eliminar_estudiante(id):
         return jsonify({
             "error": "Estudiante no encontrado"
         }), 404
-    try: 
+    try:
         cursor.execute(
             "DELETE FROM estudiante WHERE id = %s",
             (id,)
